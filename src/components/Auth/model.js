@@ -1,21 +1,21 @@
 const { Schema } = require('mongoose');
 const connections = require('../../config/connection');
 
-const UserSchema = new Schema(
+const AuthSchema = new Schema(
   {
-    fullName: {
+    refreshToken: {
       type: String,
       trim: true,
     },
-    email: {
-      type: String,
-      required: true,
+    date: {
+      type: Date,
+      trim: true,
     },
   },
   {
-    collection: 'usermodel',
+    collection: 'tokens',
     versionKey: false,
   },
 );
 
-module.exports = connections.model('UserModel', UserSchema);
+module.exports = connections.model('AuthModel', AuthSchema);

@@ -1,6 +1,6 @@
 const { Router } = require('express');
-const UserComponent = require('../User');
-
+const AuthComponent = require('../Auth/index');
+const verifyToken = require('../../policies/verifyToken');
 
 /**
  * Express router to mount user related functions on.
@@ -11,53 +11,42 @@ const router = Router();
 
 /**
  * Route serving list of users.
- * @name /v1/users
+ * @name /v2/users
  * @function
  * @inner
  * @param {string} path - Express path
  * @param {callback} middleware - Express middleware.
  */
-router.get('/', UserComponent.findAll);
-
-/**
- * Route serving a user
- * @name /v1/users/:id
- * @function
- * @inner
- * @param {string} path - Express path
- * @param {callback} middleware - Express middleware.
- */
-router.get('/:id', UserComponent.findById);
+router.get('/', verifyToken, AuthComponent.getUser);
 
 /**
  * Route serving a new user
- * @name /v1/users
+ * @name /v2/users
  * @function
  * @inner
  * @param {string} path - Express path
  * @param {callback} middleware - Express middleware
  */
-router.post('/', UserComponent.create);
+router.post('/login', AuthComponent.loginJwt);
 
 /**
  * Route serving a new user
- * @name /v1/users
+ * @name /v2/users
  * @function
  * @inner
  * @param {string} path - Express path
  * @param {callback} middleware - Express middleware
  */
-router.put('/update/:id', UserComponent.updateById);
+router.post('/token', AuthComponent.getToken);
 
 /**
  * Route serving a new user
- * @name /v1/users
+ * @name /v2/users
  * @function
  * @inner
- * @param {string} path -Express path
+ * @param {string} path - Express path
  * @param {callback} middleware - Express middleware
  */
-router.delete('/delete/:id', UserComponent.deleteById);
-
+router.delete('/logout', AuthComponent.logout);
 
 module.exports = router;

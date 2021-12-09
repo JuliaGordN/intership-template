@@ -10,20 +10,18 @@ const ValidationError = require('../../error/ValidationError');
  * @returns {Promise < void >}
  */
 async function findAll(req, res, next) {
-    try {
-        const users = await UserService.findAll();
-
-        res.status(200).json({
-            data: users,
-        });
-    } catch (error) {
-        res.status(500).json({
-            error: error.message,
-            details: null,
-        });
-
-        next(error);
-    }
+  try {
+    const users = await UserService.findAll();
+    res.status(200).json({
+      data: users,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: error.message,
+      details: null,
+    });
+    next(error);
+  }
 }
 
 /**
@@ -34,33 +32,32 @@ async function findAll(req, res, next) {
  * @returns {Promise < void >}
  */
 async function findById(req, res, next) {
-    try {
-        const { error } = UserValidation.findById(req.params);
+  try {
+    const { error } = UserValidation.findById(req.params);
 
-        if (error) {
-            throw new ValidationError(error.details);
-        }
-
-        const user = await UserService.findById(req.params.id);
-
-        return res.status(200).json({
-            data: user,
-        });
-    } catch (error) {
-        if (error instanceof ValidationError) {
-            return res.status(422).json({
-                error: error.name,
-                details: error.message,
-            });
-        }
-
-        res.status(500).json({
-            message: error.name,
-            details: error.message,
-        });
-
-        return next(error);
+    if (error) {
+      throw new ValidationError(error.details);
     }
+
+    const user = await UserService.findById(req.params.id);
+    return res.status(200).json({
+      data: user,
+    });
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      return res.status(422).json({
+        error: error.name,
+        details: error.message,
+      });
+    }
+
+    res.status(500).json({
+      message: error.name,
+      details: error.message,
+    });
+
+    return next(error);
+  }
 }
 
 /**
@@ -71,33 +68,31 @@ async function findById(req, res, next) {
  * @returns {Promise < void >}
  */
 async function create(req, res, next) {
-    try {
-        const { error } = UserValidation.create(req.body);
+  try {
+    const { error } = UserValidation.create(req.body);
 
-        if (error) {
-            throw new ValidationError(error.details);
-        }
-
-        const user = await UserService.create(req.body);
-
-        return res.status(200).json({
-            data: user,
-        });
-    } catch (error) {
-        if (error instanceof ValidationError) {
-            return res.status(422).json({
-                message: error.name,
-                details: error.message,
-            });
-        }
-
-        res.status(500).json({
-            message: error.name,
-            details: error.message,
-        });
-
-        return next(error);
+    if (error) {
+      throw new ValidationError(error.details);
     }
+
+    await UserService.create(req.body);
+
+    return res.status(200).redirect('/v1/users/');
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      return res.status(422).json({
+        message: error.name,
+        details: error.message,
+      });
+    }
+
+    res.status(500).json({
+      message: error.name,
+      details: error.message,
+    });
+
+    return next(error);
+  }
 }
 
 /**
@@ -108,33 +103,30 @@ async function create(req, res, next) {
  * @returns {Promise<void>}
  */
 async function updateById(req, res, next) {
-    try {
-        const { error } = UserValidation.updateById(req.body);
-
-        if (error) {
-            throw new ValidationError(error.details);
-        }
-
-        const updatedUser = await UserService.updateById(req.body.id, req.body);
-
-        return res.status(200).json({
-            data: updatedUser,
-        });
-    } catch (error) {
-        if (error instanceof ValidationError) {
-            return res.status(422).json({
-                message: error.name,
-                details: error.message,
-            });
-        }
-
-        res.status(500).json({
-            message: error.name,
-            details: error.message,
-        });
-
-        return next(error);
+  try {
+    const dataValidation = { ...req.params, ...req.body };
+    const { error } = UserValidation.updateById(dataValidation);
+    if (error) {
+      throw new ValidationError(error.details);
     }
+    await UserService.updateById(req.params.id, req.body);
+
+    return res.status(200).redirect('/v1/users/');
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      return res.status(422).json({
+        message: error.name,
+        details: error.message,
+      });
+    }
+
+    res.status(500).json({
+      message: error.name,
+      details: error.message,
+    });
+
+    return next(error);
+  }
 }
 
 /**
@@ -145,39 +137,37 @@ async function updateById(req, res, next) {
  * @returns {Promise<void>}
  */
 async function deleteById(req, res, next) {
-    try {
-        const { error } = UserValidation.deleteById(req.body);
+  try {
+    const dataValidation = { ...req.params, ...req.body };
+    const { error } = UserValidation.deleteById(dataValidation);
 
-        if (error) {
-            throw new ValidationError(error.details);
-        }
-
-        const deletedUser = await UserService.deleteById(req.body.id);
-
-        return res.status(200).json({
-            data: deletedUser,
-        });
-    } catch (error) {
-        if (error instanceof ValidationError) {
-            return res.status(422).json({
-                message: error.name,
-                details: error.message,
-            });
-        }
-
-        res.status(500).json({
-            message: error.name,
-            details: error.message,
-        });
-
-        return next(error);
+    if (error) {
+      throw new ValidationError(error.details);
     }
+    await UserService.deleteById(req.params.id);
+
+    return res.status(200).redirect('/v1/users/');
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      return res.status(422).json({
+        message: error.name,
+        details: error.message,
+      });
+    }
+
+    res.status(500).json({
+      message: error.name,
+      details: error.message,
+    });
+
+    return next(error);
+  }
 }
 
 module.exports = {
-    findAll,
-    findById,
-    create,
-    updateById,
-    deleteById,
+  findAll,
+  findById,
+  create,
+  updateById,
+  deleteById,
 };
